@@ -1,8 +1,9 @@
-#!/usr/bin/python2
+#!/env/python
 
 import socket
 import sys
 import time
+import argparse
 
 def sendData (sock, data):
     """
@@ -10,7 +11,7 @@ def sendData (sock, data):
     """
     try :
         sock.send(data)
-    except socket.error, e :
+    except OSError as e:
         print("Error sending data: %s" %e)
         sys.exit(1)
 
@@ -20,10 +21,10 @@ def recvData (sock, size):
     """
     try :
         data = sock.recv(size)
-    except socket.error, e :
+    except OSError as e:
         print("Error receiving data: %s" %e)
         sys.exit(1)
-    
+
     return data
 
 
@@ -43,13 +44,13 @@ def fileSend (sock, filename):
     print('Sending Data...')
     read_data = fd.read(4096)
     while (read_data):
-       #print('sending data...')
+        #print('sending data...')
        sendData(sock, read_data)
        #print('Sent ',repr(read_data))
        ack = recvData(sock, size=64)
        read_data = fd.read(4096)
     fd.close()
-    
+
     sendData(sock, data='EOF')
 
 
@@ -78,9 +79,9 @@ def persistentConnection():
     conn, addr = s.accept()
     conn.settimeout(10)
     print('Got connection from', addr)
-    
+
     filename = recvData(conn, size=2048)
-    
+
     while filename:
         print('Server received', repr(filename))
 
@@ -100,13 +101,14 @@ if __name__ == '__main__':
 
     try :
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    except socket.error, e :
+
+    except OSError as e:
         print("Error creating server socket: %s" %e)
         sys.exit(1)
 
     try :
         s.bind((host, port))
-    except socket.error, e :
+    except OSError as e:
         print("Error in binding host and port: %s" %e)
 
     s.listen(5)
@@ -117,11 +119,23 @@ if __name__ == '__main__':
         # Initial time in milliseconds before accepting a connection
         initial_time = int(round(time.time() * 1000))
 
-        if sys.argv[1] == '1':
-            nonPersistentConnection()
-        elif sys.argv[1] == '2':
+        try:
+            # nonPersistentConnection() - just here so i can remember 
+            # persistentConnection() 
+            if sys.argv[1] == '1':
+                nonPersistentConnection()
+            elif sys.argv[1] == '2':
+                persistentConnection()
+
+            else:
+                #print usage 
+               print("usage: server.py [options] [target]\nOptions:\n\t-p\t\tinclude to enable Persistant Connection with client\n\t-P, --port\t\tSpecify port number for server [not working]\n\n")
+        except IndexError:
+            print("no connection specifier found.\nUsing persistantConnection as default.\n")
+
             persistentConnection()
 
+            break
         # Final time in milliseconds after closing of the connection
         final_time = int(round(time.time() * 1000))
 

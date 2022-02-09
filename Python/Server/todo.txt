@@ -1,0 +1,14 @@
+========================================================
+	Things to do.
+========================================================
+
+[] - change the exception output to be more informative
+and give general usage information
+
+[] - Change the way command line arguments are handled.
+Since there are only two (at the moment). I've decided
+to put a single flag for specifying which type of connection
+to use 
+
+[] - Add more command line arguments to change settings like the hostname of the server, proxy servers , ip address, port number, and other networking tomfoolery
+
