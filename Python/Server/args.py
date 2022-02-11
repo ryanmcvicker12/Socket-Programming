@@ -29,8 +29,7 @@ args = parser.parse_args()
 
 # check input to stop the wrong ports from being used 
 if args.port:
-    
-
+    print(f"port number entered : {args.port}")
 
 
 
